@@ -1,0 +1,42 @@
+services:
+  - type: web
+    name: cli-proxy-api
+    runtime: docker
+    repo: https://github.com/router-for-me/CLIProxyAPI  # 替换成你的 fork 仓库地址
+    branch: main
+    dockerfilePath: ./Dockerfile.render
+    dockerContext: .
+
+    # 端口配置 - Render 会自动注入 PORT 环境变量,但这个项目用的是 8317
+    # 需要在 Dockerfile 或启动脚本里处理
+
+    # 环境变量(敏感信息在 Render Dashboard 里设置)
+    envVars:
+      - key: DEPLOY
+        value: prod
+
+      # 管理密钥 - 在 Render Dashboard 里设为 secret
+      - key: MANAGEMENT_PASSWORD
+        sync: false  # 设为 false 表示需要在 Dashboard 手动配置
+
+      # 如果使用外部存储,取消注释并在 Dashboard 配置
+      # - key: PGSTORE_DSN
+      #   sync: false
+      # - key: GITSTORE_GIT_TOKEN
+      #   sync: false
+      # - key: OBJECTSTORE_ACCESS_KEY
+      #   sync: false
+      # - key: OBJECTSTORE_SECRET_KEY
+      #   sync: false
+
+    # 持久化存储 - 用于保存 OAuth 凭据和日志
+    disk:
+      name: cli-proxy-data
+      mountPath: /data
+      sizeGB: 1
+
+    # 健康检查(可选,根据项目实际情况调整)
+    healthCheckPath: /
+
+    # 自动部署
+    autoDeploy: true
